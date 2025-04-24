@@ -1,3 +1,5 @@
+🌐 [Live Demo](https://mousacr7.github.io/currency-converter/)
+
 # 💱 Currency Converter App
 
 This is a simple web-based currency converter that allows users to convert from one currency to another using real-time exchange rates fetched from an API. The app supports multiple currencies and displays country flags for easy recognition.
