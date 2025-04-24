@@ -1,24 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <title>Currency Converter</title>
+  <link rel="stylesheet" href="currency.css">
 </head>
-<body>  
-    <section class="section">
-        <h2 class="section-title">currency converte app</h2>
-        <br>
-        <select class="select" id="from"></select>
-        <select class="select" id="to"></select>
-        <br>
-    
-        <input type="text" id="input-el" placeholder="Enter a Numper">
-        <button class="btn" id="button">converte</button>
-        <p class="converte" id="text"></p>
-    </section>
-        
-    <script src="script.js"></script>
+<body>
+  <div class="section">
+    <h2 style="text-align: center; margin-bottom: 10px;">🌍 Currency Converter</h2>
+
+  
+    <div class="selector">
+      <img id="flag-from" class="flag" src="" alt="from-flag" />
+      <select id="from" class="select"></select>
+    </div>
+  
+    <div class="selector">
+      <img id="flag-to" class="flag" src="" alt="to-flag" />
+      <select id="to" class="select"></select>
+    </div>
+  
+    <input type="text" id="input-el" placeholder="Enter amount" />
+    <button class="btn" id="button">Convert</button>
+    <div class="converte" id="text"></div>
+  </div>
+  
+<script src="currency.js"></script>
 </body>
 </html>
