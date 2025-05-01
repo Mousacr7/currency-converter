@@ -7,7 +7,7 @@ const fromEl = document.getElementById("from");
 const flagFrom = document.getElementById("flag-from");
 const flagTo = document.getElementById("flag-to");
 
-const apiKey = "b0a3b7465025c2c6f27978cb";
+const apiKey = "YOUR API KEY";
 
 const currencyCountryMap = {
   USD: "us", EUR: "eu", GBP: "gb", JPY: "jp", SAR: "sa",
