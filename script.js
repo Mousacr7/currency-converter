@@ -1,87 +1,65 @@
-const country_code = {
-  "USD": "US",
-  "SAR": "SA",
-  "EUR": "EU",
-  "GBP": "GB",
-  "INR": "IN",
-  "JPY": "JP",
-  "CNY": "CN",
-  "PKR": "PK",
-  "TRY": "TR",
-  "NGN": "NG"
+const BASE_URL = "https://api.exchangerate-api.com/v4/latest/";
+
+const dropdowns = document.querySelectorAll(".dropdown select");
+const btn = document.querySelector("form button");
+const fromCurr = document.querySelector(".from select");
+const toCurr = document.querySelector(".to select");
+const msg = document.querySelector(".msg");
+
+// Map currency to country code for flags
+const countryList = {
+    USD: "US",
+    EUR: "EU",
+    SAR: "SA",
+    JPY: "JP",
+    GBP: "GB",
+    NGN: "NG",
+    INR: "IN",
+    CAD: "CA",
+    AUD: "AU"
 };
 
-const dropList = document.querySelectorAll("select");
-const fromCurrency = document.querySelector(".from select");
-const toCurrency = document.querySelector(".to select");
-const getButton = document.querySelector("form button");
-
-for (let select of dropList) {
-  for (let currency_code in country_code) {
-    let option = document.createElement("option");
-    option.value = currency_code;
-    option.textContent = currency_code;
-    if (select.name === "from" && currency_code === "USD") {
-      option.selected = true;
-    } else if (select.name === "to" && currency_code === "SAR") {
-      option.selected = true;
+// Populate dropdowns
+for (let select of dropdowns) {
+    for (let currCode in countryList) {
+        let newOption = document.createElement("option");
+        newOption.value = currCode;
+        newOption.innerText = currCode;
+        if ((select.name === "from" && currCode === "USD") ||
+            (select.name === "to" && currCode === "SAR")) {
+            newOption.selected = "selected";
+        }
+        select.append(newOption);
     }
-    select.appendChild(option);
-  }
 
-  select.addEventListener("change", e => {
-    updateFlag(e.target);
-  });
-}
-
-function updateFlag(element) {
-  let currencyCode = element.value;
-  let countryCode = country_code[currencyCode];
-  let img = element.parentElement.querySelector("img");
-  img.src = `https://flagsapi.com/${countryCode}/flat/64.png`;
-}
-
-window.addEventListener("load", () => {
-  getExchangeRate();
-});
-
-getButton.addEventListener("click", e => {
-  e.preventDefault();
-  getExchangeRate();
-});
-
-const exchangeIcon = document.querySelector(".drop-down i");
-exchangeIcon.addEventListener("click", () => {
-  let tempCode = fromCurrency.value;
-  fromCurrency.value = toCurrency.value;
-  toCurrency.value = tempCode;
-
-  updateFlag(fromCurrency);
-  updateFlag(toCurrency);
-  getExchangeRate();
-});
-
-function getExchangeRate() {
-  const amountInput = document.querySelector(".amount input");
-  let amount = parseFloat(amountInput.value) || 1;
-  amountInput.value = amount;
-
-  const exchangeRateTxt = document.querySelector(".exchange-rate");
-  exchangeRateTxt.textContent = "Getting exchange rate...";
-
-  let from = fromCurrency.value;
-  let to = toCurrency.value;
-
-  let url = `https://v6.exchangerate-api.com/v6/YOUR_API_KEY/latest/${from}`;
-
-  fetch(url)
-    .then(res => res.json())
-    .then(result => {
-      let rate = result.conversion_rates[to];
-      let totalExRate = (amount * rate).toFixed(2);
-      exchangeRateTxt.textContent = `${amount} ${from} = ${totalExRate} ${to}`;
-    })
-    .catch(() => {
-      exchangeRateTxt.textContent = "Something went wrong";
+    select.addEventListener("change", (evt) => {
+        updateFlag(evt.target);
     });
 }
+
+// Update flag
+function updateFlag(element) {
+    let currCode = element.value;
+    let countryCode = countryList[currCode];
+    let imgTag = element.parentElement.querySelector("img");
+    imgTag.src = `https://flagsapi.com/${countryCode}/flat/64.png`;
+}
+
+// Convert currency
+btn.addEventListener("click", async (evt) => {
+    evt.preventDefault();
+    let amount = document.querySelector(".amount input");
+    let amtVal = amount.value || 1;
+
+    const url = `${BASE_URL}${fromCurr.value}`;
+    try {
+        let response = await fetch(url);
+        let data = await response.json();
+        let rate = data.rates[toCurr.value];
+        let finalAmount = (amtVal * rate).toFixed(2);
+        msg.innerText = `${amtVal} ${fromCurr.value} = ${finalAmount} ${toCurr.value}`;
+    } catch (error) {
+        msg.innerText = "Error fetching data.";
+    }
+});
+
