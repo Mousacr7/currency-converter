@@ -1,65 +1,83 @@
-const BASE_URL = "https://api.exchangerate-api.com/v4/latest/";
 
-const dropdowns = document.querySelectorAll(".dropdown select");
-const btn = document.querySelector("form button");
-const fromCurr = document.querySelector(".from select");
-const toCurr = document.querySelector(".to select");
-const msg = document.querySelector(".msg");
+const inputEl = document.getElementById("input-el");
+const button = document.getElementById("button");
+const text = document.getElementById("text");
+const toEl = document.getElementById("to");
+const fromEl = document.getElementById("from");
+const flagFrom = document.getElementById("flag-from");
+const flagTo = document.getElementById("flag-to");
 
-// Map currency to country code for flags
-const countryList = {
-    USD: "US",
-    EUR: "EU",
-    SAR: "SA",
-    JPY: "JP",
-    GBP: "GB",
-    NGN: "NG",
-    INR: "IN",
-    CAD: "CA",
-    AUD: "AU"
+const apiKey = "b0a3b7465025c2c6f27978cb";
+
+const currencyCountryMap = {
+  USD: "us", EUR: "eu", GBP: "gb", JPY: "jp", SAR: "sa",
+  AED: "ae", INR: "in", CNY: "cn", CAD: "ca", AUD: "au",
+  EGP: "eg", TRY: "tr"
 };
 
-// Populate dropdowns
-for (let select of dropdowns) {
-    for (let currCode in countryList) {
-        let newOption = document.createElement("option");
-        newOption.value = currCode;
-        newOption.innerText = currCode;
-        if ((select.name === "from" && currCode === "USD") ||
-            (select.name === "to" && currCode === "SAR")) {
-            newOption.selected = "selected";
-        }
-        select.append(newOption);
-    }
+async function loadCurrencies() {
+  const url = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/USD`;
+  const response = await fetch(url);
+  const data = await response.json();
 
-    select.addEventListener("change", (evt) => {
-        updateFlag(evt.target);
-    });
+  const currencies = Object.keys(data.conversion_rates);
+
+  currencies.forEach(currency => {
+    const option = document.createElement("option");
+    option.value = currency;
+    option.textContent = currency;
+    fromEl.appendChild(option.cloneNode(true));
+    toEl.appendChild(option);
+  });
+
+  fromEl.value = "USD";
+  toEl.value = "SAR";
+  updateFlags();
 }
 
-// Update flag
-function updateFlag(element) {
-    let currCode = element.value;
-    let countryCode = countryList[currCode];
-    let imgTag = element.parentElement.querySelector("img");
-    imgTag.src = `https://flagsapi.com/${countryCode}/flat/64.png`;
+function getFlagUrl(currency) {
+  const code = currencyCountryMap[currency] || currency.slice(0, 2).toLowerCase();
+  return `https://flagcdn.com/24x18/${code}.png`;
 }
 
-// Convert currency
-btn.addEventListener("click", async (evt) => {
-    evt.preventDefault();
-    let amount = document.querySelector(".amount input");
-    let amtVal = amount.value || 1;
+function updateFlags() {
+  flagFrom.src = getFlagUrl(fromEl.value);
+  flagTo.src = getFlagUrl(toEl.value);
+}
 
-    const url = `${BASE_URL}${fromCurr.value}`;
-    try {
-        let response = await fetch(url);
-        let data = await response.json();
-        let rate = data.rates[toCurr.value];
-        let finalAmount = (amtVal * rate).toFixed(2);
-        msg.innerText = `${amtVal} ${fromCurr.value} = ${finalAmount} ${toCurr.value}`;
-    } catch (error) {
-        msg.innerText = "Error fetching data.";
+fromEl.addEventListener("change", updateFlags);
+toEl.addEventListener("change", updateFlags);
+
+button.addEventListener("click", currenciesConverter);
+
+async function currenciesConverter() {
+  const from = fromEl.value;
+  const to = toEl.value;
+  const amount = inputEl.value.trim();
+
+  if (!amount || isNaN(amount)) {
+    text.textContent = "You should add a valid number.";
+    return;
+  }
+
+  try {
+    const url = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/${from}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.result !== "success") {
+      text.textContent = "Something went wrong.";
+      return;
     }
-});
 
+    const rate = data.conversion_rates[to];
+    const converted = (amount * rate).toFixed(2);
+    text.textContent = `Converted ${amount} ${from} = ${converted} ${to}`;
+    inputEl.value = '';
+  } catch (error) {
+    console.error(error);
+    text.textContent = "Sorry, we'll fix the problem soon.";
+  }
+}
+
+loadCurrencies();
