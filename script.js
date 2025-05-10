@@ -1,4 +1,3 @@
-
 const inputEl = document.getElementById("input-el");
 const button = document.getElementById("button");
 const text = document.getElementById("text");
@@ -9,10 +8,11 @@ const flagTo = document.getElementById("flag-to");
 
 const apiKey = "b0a3b7465025c2c6f27978cb";
 
+// Correct country codes (ISO 3166-1 alpha-2)
 const currencyCountryMap = {
-  USD: "us", EUR: "eu", GBP: "gb", JPY: "jp", SAR: "sa",
-  AED: "ae", INR: "in", CNY: "cn", CAD: "ca", AUD: "au",
-  EGP: "eg", TRY: "tr"
+  USD: "US", EUR: "DE", GBP: "GB", JPY: "JP", SAR: "SA",
+  AED: "AE", INR: "IN", CNY: "CN", CAD: "CA", AUD: "AU",
+  EGP: "EG", TRY: "TR"
 };
 
 async function loadCurrencies() {
@@ -36,8 +36,8 @@ async function loadCurrencies() {
 }
 
 function getFlagUrl(currency) {
-  const code = currencyCountryMap[currency] || currency.slice(0, 2).toLowerCase();
-  return `https://flagcdn.com/24x18/${code}.png`;
+  const code = currencyCountryMap[currency] || currency.slice(0, 2).toUpperCase();
+  return `https://flagsapi.com/${code}/flat/64.png`;
 }
 
 function updateFlags() {
@@ -81,3 +81,4 @@ async function currenciesConverter() {
 }
 
 loadCurrencies();
+
